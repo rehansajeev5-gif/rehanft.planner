@@ -1,0 +1,2131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Planner — V1</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: Inter, Arial, sans-serif;
+    }
+
+    :root {
+        --bg: #0b0d10;
+        --card: #14171c;
+        --card2: #1a1e24;
+        --border: #292e36;
+        --text: #f4f6f8;
+        --muted: #9299a5;
+        --accent: #7c5cff;
+        --accent2: #9b85ff;
+        --green: #38d996;
+        --red: #ff6577;
+        --yellow: #f4c95d;
+    }
+
+    body {
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+    }
+
+    button, input, select {
+        font: inherit;
+    }
+
+    button {
+        cursor: pointer;
+    }
+
+    /* SIDEBAR */
+
+    .app {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .sidebar {
+        width: 250px;
+        background: #101216;
+        border-right: 1px solid var(--border);
+        padding: 25px 15px;
+        position: fixed;
+        height: 100vh;
+        overflow-y: auto;
+    }
+
+    .logo {
+        font-size: 23px;
+        font-weight: 800;
+        padding: 0 12px 30px;
+    }
+
+    .logo span {
+        color: var(--accent);
+    }
+
+    .nav-title {
+        color: var(--muted);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        padding: 15px 12px 8px;
+    }
+
+    .nav-btn {
+        width: 100%;
+        background: transparent;
+        color: var(--muted);
+        border: none;
+        padding: 11px 12px;
+        border-radius: 9px;
+        text-align: left;
+        margin-bottom: 3px;
+        transition: 0.2s;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+        background: var(--card2);
+        color: white;
+    }
+
+    .nav-btn.active {
+        border-left: 3px solid var(--accent);
+    }
+
+    /* MAIN */
+
+    .main {
+        margin-left: 250px;
+        width: calc(100% - 250px);
+        padding: 35px;
+        max-width: 1600px;
+    }
+
+    .page {
+        display: none;
+    }
+
+    .page.active {
+        display: block;
+        animation: fade 0.2s ease;
+    }
+
+    @keyframes fade {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+        gap: 15px;
+    }
+
+    h1 {
+        font-size: 30px;
+        margin-bottom: 6px;
+    }
+
+    h2 {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    h3 {
+        font-size: 16px;
+    }
+
+    .subtitle {
+        color: var(--muted);
+    }
+
+    .date {
+        color: var(--muted);
+        font-size: 14px;
+    }
+
+    /* CARDS */
+
+    .grid {
+        display: grid;
+        gap: 18px;
+    }
+
+    .grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .grid-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 20px;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    /* BUTTONS */
+
+    .btn {
+        border: none;
+        border-radius: 9px;
+        padding: 10px 15px;
+        color: white;
+        background: var(--accent);
+        font-weight: 600;
+    }
+
+    .btn:hover {
+        background: var(--accent2);
+    }
+
+    .btn.secondary {
+        background: var(--card2);
+        border: 1px solid var(--border);
+    }
+
+    .btn.danger {
+        background: var(--red);
+    }
+
+    /* INPUTS */
+
+    input,
+    select {
+        width: 100%;
+        background: #0e1014;
+        color: white;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 11px;
+        outline: none;
+    }
+
+    input:focus,
+    select:focus {
+        border-color: var(--accent);
+    }
+
+    label {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 7px;
+    }
+
+    .form-group {
+        margin-bottom: 14px;
+    }
+
+    /* DASHBOARD */
+
+    .quote {
+        padding: 28px;
+        background: linear-gradient(135deg, #17142a, #14171c);
+        border-color: #332b5e;
+    }
+
+    .quote-text {
+        font-size: 21px;
+        line-height: 1.5;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .quote-label {
+        color: var(--accent2);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .stat {
+        font-size: 30px;
+        font-weight: 800;
+        margin: 8px 0;
+    }
+
+    .stat-label {
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .progress {
+        height: 8px;
+        background: #282d35;
+        border-radius: 20px;
+        overflow: hidden;
+        margin-top: 12px;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background: var(--accent);
+        border-radius: 20px;
+        transition: width 0.3s;
+    }
+
+    .green {
+        color: var(--green);
+    }
+
+    .yellow {
+        color: var(--yellow);
+    }
+
+    .red {
+        color: var(--red);
+    }
+
+    /* TASKS */
+
+    .task {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .task:last-child {
+        border-bottom: none;
+    }
+
+    .task input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--accent);
+    }
+
+    .task-info {
+        flex: 1;
+    }
+
+    .task.completed .task-name {
+        text-decoration: line-through;
+        color: var(--muted);
+    }
+
+    .task-meta {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 3px;
+    }
+
+    .delete {
+        background: transparent;
+        border: none;
+        color: var(--muted);
+        font-size: 18px;
+    }
+
+    .delete:hover {
+        color: var(--red);
+    }
+
+    /* FORMS */
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    /* GOALS */
+
+    .goal {
+        margin-bottom: 18px;
+    }
+
+    .goal-top {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 7px;
+    }
+
+    /* WATER */
+
+    .water-count {
+        font-size: 45px;
+        font-weight: 800;
+        text-align: center;
+        margin: 15px;
+    }
+
+    .water-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    /* MOBILE */
+
+    .mobile-menu {
+        display: none;
+    }
+
+    @media(max-width: 900px) {
+        .sidebar {
+            transform: translateX(-100%);
+            transition: 0.3s;
+            z-index: 10;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .main {
+            margin-left: 0;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .mobile-menu {
+            display: block;
+            background: var(--card);
+            color: white;
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        .grid-3,
+        .grid-4 {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media(max-width: 600px) {
+        .grid-2,
+        .grid-3,
+        .grid-4,
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        h1 {
+            font-size: 25px;
+        }
+
+        .main {
+            padding: 15px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+
+    <div class="logo">
+        PLAN<span>.</span>
+    </div>
+
+    <div class="nav-title">Workspace</div>
+
+    <button class="nav-btn active" onclick="showPage('dashboard', this)">
+        🏠 Dashboard
+    </button>
+
+    <button class="nav-btn" onclick="showPage('planner', this)">
+        ✓ Planner
+    </button>
+
+    <button class="nav-btn" onclick="showPage('goals', this)">
+        🎯 Goals
+    </button>
+
+    <button class="nav-btn" onclick="showPage('progress', this)">
+        📊 Progress
+    </button>
+
+    <div class="nav-title">Wellness</div>
+
+    <button class="nav-btn" onclick="showPage('nutrition', this)">
+        🍎 Nutrition
+    </button>
+
+    <button class="nav-btn" onclick="showPage('wellness', this)">
+        💧 Wellness
+    </button>
+
+    <button class="nav-btn" onclick="showPage('medication', this)">
+        💊 Medication
+    </button>
+
+    <div class="nav-title">More</div>
+
+    <button class="nav-btn" onclick="showPage('references', this)">
+        📚 References
+    </button>
+
+    <button class="nav-btn" onclick="showPage('portfolio', this)">
+        👤 Portfolio
+    </button>
+
+</aside>
+
+
+<!-- MAIN -->
+<main class="main">
+
+    <div class="topbar">
+        <div>
+            <button class="mobile-menu" onclick="toggleSidebar()">☰</button>
+        </div>
+
+        <div class="date" id="currentDate"></div>
+    </div>
+
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="page active">
+
+    <div style="margin-bottom:25px;">
+        <h1>Good day 👋</h1>
+        <p class="subtitle">
+            Plan your day. Build better habits. Achieve your goals.
+        </p>
+    </div>
+
+
+    <!-- QUOTE -->
+    <div class="card quote" style="margin-bottom:18px;">
+        <div class="quote-label">Daily Motivation</div>
+        <div class="quote-text" id="dailyQuote"></div>
+        <div class="subtitle">One day at a time.</div>
+    </div>
+
+
+    <!-- STATS -->
+    <div class="grid grid-4" style="margin-bottom:18px;">
+
+        <div class="card">
+            <div class="stat-label">Tasks completed</div>
+            <div class="stat" id="dashTasks">0/0</div>
+            <div class="progress">
+                <div class="progress-bar" id="taskProgress"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Goals</div>
+            <div class="stat" id="dashGoals">0</div>
+            <div class="stat-label">active goals</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Calories</div>
+            <div class="stat" id="dashCalories">0</div>
+            <div class="stat-label">estimated today</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Water</div>
+            <div class="stat" id="dashWater">0</div>
+            <div class="stat-label">glasses today</div>
+        </div>
+
+    </div>
+
+
+    <div class="grid grid-2">
+
+        <!-- TASKS -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Today's Tasks</h2>
+                <button class="btn" onclick="showPageById('planner')">
+                    + Add
+                </button>
+            </div>
+
+            <div id="dashboardTasks"></div>
+        </div>
+
+
+        <!-- WELLNESS SUMMARY -->
+        <div class="card">
+
+            <div class="card-header">
+                <h2>Wellness</h2>
+            </div>
+
+            <div class="grid grid-2">
+
+                <div>
+                    <div class="stat-label">Exercise</div>
+                    <div class="stat" id="dashExercise">0</div>
+                    <div class="stat-label">minutes</div>
+                </div>
+
+                <div>
+                    <div class="stat-label">Sleep</div>
+                    <div class="stat" id="dashSleep">0</div>
+                    <div class="stat-label">hours</div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- PLANNER -->
+<section id="planner" class="page">
+
+    <div class="topbar">
+        <div>
+            <h1>Planner</h1>
+            <p class="subtitle">Organize your day and get things done.</p>
+        </div>
+    </div>
+
+
+    <div class="card" style="margin-bottom:18px;">
+
+        <h2>Add Task</h2>
+
+        <div class="form-group">
+            <label>Task</label>
+            <input id="taskName" placeholder="e.g. Study Digital Logic">
+        </div>
+
+        <div class="form-row">
+
+            <div class="form-group">
+                <label>Priority</label>
+
+                <select id="taskPriority">
+                    <option value="Low">Low</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="High">High</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Time</label>
+                <input id="taskTime" type="time">
+            </div>
+
+        </div>
+
+        <button class="btn" onclick="addTask()">Add Task</button>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-header">
+            <h2>Your Tasks</h2>
+
+            <button class="btn secondary" onclick="clearCompleted()">
+                Clear Completed
+            </button>
+        </div>
+
+        <div id="taskList"></div>
+
+    </div>
+
+</section>
+
+
+<!-- GOALS -->
+<section id="goals" class="page">
+
+    <div class="topbar">
+        <div>
+            <h1>Goals</h1>
+            <p class="subtitle">Turn bigger ambitions into measurable progress.</p>
+        </div>
+    </div>
+
+
+    <div class="card" style="margin-bottom:18px;">
+
+        <h2>Add Goal</h2>
+
+        <div class="form-group">
+            <label>Goal</label>
+            <input id="goalName" placeholder="e.g. Learn Python">
+        </div>
+
+        <div class="form-row">
+
+            <div class="form-group">
+                <label>Deadline</label>
+                <input id="goalDeadline" type="date">
+            </div>
+
+            <div class="form-group">
+                <label>Initial Progress (%)</label>
+                <input id="goalProgress" type="number" min="0" max="100" value="0">
+            </div>
+
+        </div>
+
+        <button class="btn" onclick="addGoal()">Add Goal</button>
+
+    </div>
+
+
+    <div class="card">
+        <h2>Active Goals</h2>
+        <div id="goalList"></div>
+    </div>
+
+</section>
+
+
+<!-- NUTRITION -->
+<section id="nutrition" class="page">
+
+    <div class="topbar">
+        <div>
+            <h1>Nutrition</h1>
+            <p class="subtitle">
+                Track what you eat without turning food into a source of guilt.
+            </p>
+        </div>
+    </div>
+
+
+    <div class="grid grid-3" style="margin-bottom:18px;">
+
+        <div class="card">
+            <div class="stat-label">Calories</div>
+            <div class="stat" id="nutritionCalories">0</div>
+            <div class="stat-label">estimated today</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Protein</div>
+            <div class="stat" id="nutritionProtein">0g</div>
+            <div class="stat-label">estimated today</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Food Balance</div>
+            <div class="stat" id="foodScore">100</div>
+            <div class="stat-label">simple tracking score</div>
+        </div>
+
+    </div>
+
+
+    <div class="card" style="margin-bottom:18px;">
+
+        <h2>Add Meal</h2>
+
+        <div class="form-row">
+
+            <div class="form-group">
+                <label>Meal</label>
+                <input id="mealName" placeholder="e.g. Chicken rice">
+            </div>
+
+            <div class="form-group">
+                <label>Meal Type</label>
+
+                <select id="mealType">
+                    <option>Breakfast</option>
+                    <option>Lunch</option>
+                    <option>Snack</option>
+                    <option>Dinner</option>
+                </select>
+            </div>
+
+        </div>
+
+
+        <div class="form-row">
+
+            <div class="form-group">
+                <label>Estimated Calories</label>
+                <input id="mealCalories" type="number" placeholder="500">
+            </div>
+
+            <div class="form-group">
+                <label>Protein (g)</label>
+                <input id="mealProtein" type="number" placeholder="25">
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                <input id="mealJunk" type="checkbox" style="width:auto;margin-right:8px;">
+                Highly processed / high-sugar food
+            </label>
+
+        </div>
+
+
+        <button class="btn" onclick="addMeal()">Add Meal</button>
+
+    </div>
+
+
+    <div class="card">
+
+        <h2>Today's Meals</h2>
+
+        <div id="mealList"></div>
+
+    </div>
+
+</section>
+
+
+<!-- WELLNESS -->
+<section id="wellness" class="page">
+
+    <div class="topbar">
+        <div>
+            <h1>Wellness</h1>
+            <p class="subtitle">
+                Small habits can make a big difference.
+            </p>
+        </div>
+    </div>
+
+
+    <div class="grid grid-3">
+
+        <!-- WATER -->
+        <div class="card">
+
+            <h2>💧 Water</h2>
+
+            <div class="water-count">
+                <span id="waterCount">0</span>
+            </div>
+
+            <p class="subtitle" style="text-align:center;">
+                glasses today
+            </p>
+
+            <div class="water-actions">
+                <button class="btn" onclick="changeWater(1)">+1</button>
+                <button class="btn secondary" onclick="changeWater(-1)">−1</button>
+            </div>
+
+        </div>
+
+
+        <!-- EXERCISE -->
+        <div class="card">
+
+            <h2>🏃 Exercise</h2>
+
+            <div class="form-group">
+                <label>Minutes today</label>
+                <input id="exerciseInput" type="number" min="0">
+            </div>
+
+            <button class="btn" onclick="saveExercise()">
+                Save
+            </button>
+
+        </div>
+
+
+        <!-- SLEEP -->
+        <div class="card">
+
+            <h2>😴 Sleep</h2>
+
+            <div class="form-group">
+                <label>Hours slept</label>
+                <input id="sleepInput" type="number" min="0" max="24" step="0.5">
+            </div>
+
+            <button class="btn" onclick="saveSleep()">
+                Save
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- MEDICATION -->
+<section id="medication" class="page">
+
+    <div class="topbar">
+        <div>
+            <h1>Medication</h1>
+            <p class="subtitle">
+                Track medicines you already take and remember scheduled doses.
+            </p>
+        </div>
+    </div>
+
+
+    <div class="card" style="margin-bottom:18px;">
+
+        <h2>Add Medication</h2>
+
+        <div class="form-row">
+
+            <div class="form-group">
+                <label>Medicine name</label>
+                <input id="medName" placeholder="Medicine name">
+            </div>
+
+            <div class="form-group">
+                <label>Time</label>
+                <input id="medTime" type="time">
+            </div>
+
+        </div>
+
+        <div class="form-group">
+            <label>Dose / notes (optional)</label>
+            <input id="medDose" placeholder="e.g. 1 tablet">
+        </div>
+
+        <button class="btn" onclick="addMedication()">
+            Add Medication
+        </button>
+
+    </div>
+
+
+    <div class="card">
+
+        <h2>Today's Medication</h2>
+
+        <div id="medList"></div>
+
+        <p class="subtitle" style="margin-top:20px;font-size:12px;">
+            This tracker is for recording medicines you already use.
+            It does not prescribe, recommend, or change treatment.
+            For medication decisions, consult a qualified healthcare professional.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- PROGRESS -->
+<section id="progress" class="page">
+
+    <div class="topbar">
+        <div>
+            <h1>Progress</h1>
+            <p class="subtitle">See how consistently you're showing up.</p>
+        </div>
+    </div>
+
+
+    <div class="grid grid-3">
+
+        <div class="card">
+            <div class="stat-label">Total tasks</div>
+            <div class="stat" id="progressTasks">0</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Completed tasks</div>
+            <div class="stat green" id="progressCompleted">0</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Completion rate</div>
+            <div class="stat" id="progressRate">0%</div>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- REFERENCES -->
+<section id="references" class="page">
+
+    <div class="topbar">
+        <div>
+            <h1>References & Learn</h1>
+            <p class="subtitle">
+                Learn the basics behind healthier daily decisions.
+            </p>
+        </div>
+    </div>
+
+
+    <div class="grid grid-2">
+
+        <div class="card">
+            <h2>🥗 Nutrition</h2>
+            <p class="subtitle">
+                A balanced diet generally includes a variety of foods,
+                including fruits, vegetables, whole grains and appropriate
+                sources of protein and fats.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>💧 Hydration</h2>
+            <p class="subtitle">
+                Your hydration needs depend on factors such as activity,
+                climate, diet and individual circumstances.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>🏃 Physical Activity</h2>
+            <p class="subtitle">
+                Regular physical activity supports overall health.
+                Start at a level appropriate for you and increase gradually.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>😴 Sleep</h2>
+            <p class="subtitle">
+                Consistent, adequate sleep is an important part of
+                physical and mental wellbeing.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>🍔 Highly Processed Foods</h2>
+            <p class="subtitle">
+                Eating highly processed or high-sugar foods sometimes is not
+                a failure. The goal is awareness and overall balance rather
+                than perfection.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>💊 Medication Safety</h2>
+            <p class="subtitle">
+                Take medicines according to the instructions provided by
+                your healthcare professional or medication label. Do not
+                change doses without professional advice.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- PORTFOLIO -->
+<section id="portfolio" class="page">
+
+    <div class="topbar">
+        <div>
+            <h1>My Portfolio</h1>
+            <p class="subtitle">
+                Play. Code. Create. Repeat. ⚽💻🚀
+            </p>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px;">
+        <h2>Mohammed Rehan Sajeev 👋</h2>
+
+        <p class="subtitle" style="font-size:16px;line-height:1.8;">
+            I’m someone who loves <strong>football, coding, and creating things from my own ideas</strong>.
+            Football is something I enjoy because it teaches me <strong>teamwork, discipline, and the importance of never giving up</strong>.
+        </p>
+
+        <p class="subtitle" style="font-size:16px;line-height:1.8;margin-top:12px;">
+            When I’m not on the field, you’ll probably find me
+            <strong>coding, experimenting with new ideas, or building something of my own</strong>.
+            I enjoy turning my thoughts into real projects and finding creative ways to solve problems.
+        </p>
+
+        <p class="subtitle" style="font-size:16px;line-height:1.8;margin-top:12px;">
+            I’m always curious to learn, improve my skills, and challenge myself to build something
+            <strong>better than what I built yesterday</strong>.
+        </p>
+
+        <h3 style="margin-top:20px;">
+            Play. Code. Create. Repeat. ⚽💻🚀
+        </h3>
+    </div>
+
+    <div class="grid grid-3">
+
+        <div class="card">
+            <h2>💻 Skills & Interests</h2>
+            <p class="subtitle" style="line-height:1.8;">
+                <strong>I don’t just write code — I love bringing ideas to life.</strong>
+            </p>
+
+            <p class="subtitle" style="line-height:1.8;margin-top:10px;">
+                I enjoy exploring the world of <strong>programming and technology</strong>,
+                turning random thoughts into working ideas and experimenting with different ways
+                to solve problems.
+            </p>
+
+            <p class="subtitle" style="line-height:1.8;margin-top:10px;">
+                I’m passionate about <strong>creating, innovating, and building things from scratch</strong>.
+                I’m also interested in <strong>electronics and communication-related technologies</strong>,
+                especially how hardware and software can come together to create something meaningful.
+            </p>
+
+            <p style="margin-top:14px;">
+                <strong>Code is my canvas.<br>
+                Ideas are my raw material.<br>
+                Innovation is what I’m chasing. ⚡💻🚀</strong>
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>🎓 Education</h2>
+
+            <div style="margin-bottom:22px;">
+                <h3>B.Tech — Computer Science and Engineering (Core)</h3>
+                <p class="subtitle" style="margin-top:5px;">
+                    <strong>VIT-AP University</strong><br>
+                    Currently pursuing 1st Year
+                </p>
+            </div>
+
+            <div>
+                <h3>Higher Secondary Education (+2 / Intermediate)</h3>
+                <p class="subtitle" style="margin-top:5px;">
+                    <strong>Mar Gregorios Memorial Central Public School</strong><br>
+                    Thiruvananthapuram, Kerala<br>
+                    Completed
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📬 Contact</h2>
+
+            <p class="subtitle" style="line-height:2;">
+                <a href="mailto:rehansajeev5@gmail.com" style="color:var(--text);text-decoration:none;">
+                    📧 rehansajeev5@gmail.com
+                </a><br>
+
+                <a href="https://github.com/rehansajeev5-gif/MOHAMMED-REHAN-SAJEEV"
+                   target="_blank" rel="noopener"
+                   style="color:var(--text);text-decoration:none;">
+                    💻 GitHub
+                </a><br>
+
+                <a href="https://www.linkedin.com/in/rehan-sajeev-b9569641b/"
+                   target="_blank" rel="noopener"
+                   style="color:var(--text);text-decoration:none;">
+                    🔗 LinkedIn
+                </a>
+            </p>
+        </div>
+
+    </div>
+
+    <div class="card" style="margin-top:18px;">
+        <h2>🚀 What I’m About</h2>
+        <p class="subtitle" style="font-size:16px;line-height:1.8;">
+            I enjoy taking an idea from <strong>“What if?”</strong> to
+            <strong>“I built it.”</strong> I’m constantly learning, experimenting,
+            and looking for new ways to combine creativity, code, electronics,
+            and technology into useful things.
+        </p>
+    </div>
+
+</section>
+
+</main>
+</div>
+
+
+<script>
+
+/* =========================
+   DATA
+========================= */
+
+const defaultData = {
+    tasks: [],
+    goals: [],
+    meals: [],
+    medications: [],
+    water: 0,
+    exercise: 0,
+    sleep: 0
+};
+
+let data = JSON.parse(
+    localStorage.getItem("dailyPlannerData")
+) || defaultData;
+
+
+/* =========================
+   SAVE
+========================= */
+
+function save() {
+    localStorage.setItem(
+        "dailyPlannerData",
+        JSON.stringify(data)
+    );
+
+    renderAll();
+}
+
+
+/* =========================
+   NAVIGATION
+========================= */
+
+function showPage(pageId, button) {
+
+    document.querySelectorAll(".page")
+        .forEach(page => page.classList.remove("active"));
+
+    document.getElementById(pageId)
+        .classList.add("active");
+
+    document.querySelectorAll(".nav-btn")
+        .forEach(btn => btn.classList.remove("active"));
+
+    if(button) {
+        button.classList.add("active");
+    }
+
+    document.getElementById("sidebar")
+        .classList.remove("open");
+}
+
+
+function showPageById(id) {
+
+    const button = [...document.querySelectorAll(".nav-btn")]
+        .find(btn => btn.getAttribute("onclick")?.includes(id));
+
+    showPage(id, button);
+}
+
+
+function toggleSidebar() {
+    document.getElementById("sidebar")
+        .classList.toggle("open");
+}
+
+
+/* =========================
+   DATE
+========================= */
+
+function updateDate() {
+
+    const now = new Date();
+
+    document.getElementById("currentDate")
+        .textContent =
+        now.toLocaleDateString("en-IN", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric"
+        });
+}
+
+
+/* =========================
+   MOTIVATIONAL QUOTES
+========================= */
+
+const quotes = [
+"Small progress is still progress.",
+"Start before you feel ready.",
+"Consistency beats intensity when intensity cannot last.",
+"Your future is built by what you do today.",
+"Make the next decision a good one.",
+"Discipline makes difficult things easier over time.",
+"One focused hour can change your whole day.",
+"Do not wait for motivation; create momentum.",
+"Progress begins with showing up.",
+"Your habits are votes for the person you want to become.",
+"Keep going even when the result is not visible yet.",
+"Focus on the process you can control.",
+"Done is often better than perfect.",
+"Make today useful.",
+"Small actions become big results when repeated.",
+"Your goals need action, not just intention.",
+"Learn, apply, improve, repeat.",
+"Protect your attention.",
+"Start small, stay consistent.",
+"The best time to improve is today.",
+"Every completed task builds confidence.",
+"Do the important thing first.",
+"Your effort compounds.",
+"Build systems that make good choices easier.",
+"Do not compare your beginning to someone else's middle.",
+"Progress does not need to be dramatic.",
+"Keep promises you make to yourself.",
+"Focus creates momentum.",
+"One step is enough to move forward.",
+"Make progress before seeking perfection.",
+"Your routine shapes your results.",
+"Be patient with the process.",
+"Work quietly and let progress speak.",
+"Choose consistency over temporary excitement.",
+"Today is another opportunity to improve.",
+"Learn from yesterday without living in it.",
+"Your direction matters more than your speed.",
+"Make the next hour count.",
+"Confidence grows through action.",
+"Build the habit before chasing the result.",
+"Do what matters, even when it is uncomfortable.",
+"Progress requires repetition.",
+"Your attention is one of your greatest resources.",
+"Create before you consume.",
+"Finish what you start.",
+"Improve one small thing today.",
+"Momentum starts with one action.",
+"Your goals become real when they enter your calendar.",
+"Keep your standards high and your expectations realistic.",
+"Focus on what you can control.",
+"Do not underestimate ordinary daily effort.",
+"Consistency turns effort into skill.",
+"Make your environment support your goals.",
+"Use setbacks as information.",
+"Keep learning.",
+"Do not let one bad day become a bad week.",
+"Your next action matters more than your last mistake.",
+"Progress is built quietly.",
+"Take responsibility for the next step.",
+"Give yourself permission to begin imperfectly.",
+"Make fewer promises and keep more of them.",
+"Your habits are shaping your future.",
+"Action creates clarity.",
+"Practice makes progress.",
+"Do not confuse planning with doing.",
+"Start with what you have.",
+"Keep moving forward.",
+"Focus on the work, not the applause.",
+"Your potential needs practice.",
+"Small wins create bigger wins.",
+"Make discipline your advantage.",
+"Do something today that your future self will appreciate.",
+"Build a life you do not need to escape from.",
+"Your routine should support your priorities.",
+"Protect your mornings.",
+"Protect your sleep.",
+"Protect your focus.",
+"Choose progress over excuses.",
+"Make difficult things normal through practice.",
+"Every expert once started as a beginner.",
+"Keep your curiosity alive.",
+"Ask better questions.",
+"Learn from mistakes quickly.",
+"Do not fear being bad at something new.",
+"Improvement requires repetition.",
+"Be consistent when nobody is watching.",
+"Your standards define your direction.",
+"Focus on what deserves your energy.",
+"Do not waste today's energy worrying about tomorrow.",
+"Work with patience.",
+"Results follow repeated action.",
+"Make your goals measurable.",
+"Track what you want to improve.",
+"What gets practiced gets stronger.",
+"Make time for what matters.",
+"Do not let distractions choose your priorities.",
+"Build before you judge.",
+"Your future needs today's effort.",
+"One productive decision can restart your day.",
+"Start again whenever necessary.",
+"Keep your promises to yourself.",
+"Use your time intentionally.",
+"Progress is rarely linear.",
+"Learn to enjoy the process.",
+"Be proud of effort that nobody sees.",
+"Make improvement a lifestyle.",
+"Small habits can change big outcomes.",
+"Your calendar reveals your priorities.",
+"Use mistakes as lessons, not labels.",
+"Focus on becoming better, not looking better.",
+"Work on the things that compound.",
+"Be willing to start again.",
+"Do not quit because progress feels slow.",
+"Patience is part of discipline.",
+"Build skills that make your future easier.",
+"Use your energy wisely.",
+"Create more than you consume.",
+"Practice what you want to become.",
+"Your effort today is an investment.",
+"Make your next choice intentional.",
+"Do not wait for the perfect plan.",
+"Start with a simple plan and improve it.",
+"Your habits create your default future.",
+"Stay curious and stay consistent.",
+"Focus on what moves the needle.",
+"One focused task beats ten distracted ones.",
+"Progress rewards persistence.",
+"Keep learning even when it is difficult.",
+"Your pace is allowed to change.",
+"Do not abandon the goal because the path changed.",
+"Make room for rest.",
+"Recovery is part of progress.",
+"Take care of the person doing the work.",
+"Health supports everything else you want to build.",
+"Your body deserves attention too.",
+"Balance is more sustainable than extremes.",
+"Do not turn one imperfect choice into an excuse.",
+"Awareness comes before improvement.",
+"Track patterns, not perfection.",
+"Take the next healthy step.",
+"Build routines you can actually maintain.",
+"Your best routine is one you can repeat.",
+"Make healthy choices easier through preparation.",
+"Consistency creates stability.",
+"Use today wisely.",
+"Progress is a practice.",
+"Keep building.",
+"Keep learning.",
+"Keep improving.",
+"Keep showing up.",
+"Your work matters.",
+"Your effort matters.",
+"Your next step matters.",
+"Begin again.",
+"Stay focused.",
+"Stay patient.",
+"Stay consistent.",
+"Choose progress.",
+"Choose discipline.",
+"Choose learning.",
+"Choose action.",
+"Choose growth.",
+"Make today count.",
+"Do the work.",
+"Trust the process you are building.",
+"Keep moving.",
+"Keep improving.",
+"Build your future one day at a time.",
+"Make your habits work for you.",
+"Your goals deserve consistent action.",
+"Progress starts now."
+];
+
+
+function dailyQuote() {
+
+    const start = new Date(
+        new Date().getFullYear(),
+        0,
+        0
+    );
+
+    const today = new Date();
+
+    const diff = today - start;
+
+    const day = Math.floor(
+        diff / (1000 * 60 * 60 * 24)
+    );
+
+    return quotes[day % quotes.length];
+}
+
+
+/* =========================
+   TASKS
+========================= */
+
+function addTask() {
+
+    const name =
+        document.getElementById("taskName").value.trim();
+
+    if(!name) {
+        alert("Enter a task first.");
+        return;
+    }
+
+    data.tasks.push({
+        id: Date.now(),
+        name: name,
+        priority:
+            document.getElementById("taskPriority").value,
+        time:
+            document.getElementById("taskTime").value,
+        completed: false
+    });
+
+    document.getElementById("taskName").value = "";
+    document.getElementById("taskTime").value = "";
+
+    save();
+}
+
+
+function toggleTask(id) {
+
+    const task =
+        data.tasks.find(t => t.id === id);
+
+    if(task) {
+        task.completed = !task.completed;
+    }
+
+    save();
+}
+
+
+function deleteTask(id) {
+
+    data.tasks =
+        data.tasks.filter(t => t.id !== id);
+
+    save();
+}
+
+
+function clearCompleted() {
+
+    data.tasks =
+        data.tasks.filter(t => !t.completed);
+
+    save();
+}
+
+
+function renderTasks() {
+
+    const container =
+        document.getElementById("taskList");
+
+    if(data.tasks.length === 0) {
+
+        container.innerHTML =
+            `<p class="subtitle">No tasks yet. Add your first task.</p>`;
+
+        return;
+    }
+
+    container.innerHTML =
+        data.tasks.map(task => `
+
+            <div class="task ${task.completed ? "completed" : ""}">
+
+                <input
+                    type="checkbox"
+                    ${task.completed ? "checked" : ""}
+                    onchange="toggleTask(${task.id})"
+                >
+
+                <div class="task-info">
+
+                    <div class="task-name">
+                        ${escapeHTML(task.name)}
+                    </div>
+
+                    <div class="task-meta">
+                        ${task.priority}
+                        ${task.time ? " • " + task.time : ""}
+                    </div>
+
+                </div>
+
+                <button
+                    class="delete"
+                    onclick="deleteTask(${task.id})">
+                    ×
+                </button>
+
+            </div>
+
+        `).join("");
+}
+
+
+/* =========================
+   GOALS
+========================= */
+
+function addGoal() {
+
+    const name =
+        document.getElementById("goalName").value.trim();
+
+    if(!name) {
+        alert("Enter a goal.");
+        return;
+    }
+
+    let progress =
+        Number(document.getElementById("goalProgress").value);
+
+    progress = Math.max(0, Math.min(100, progress));
+
+    data.goals.push({
+        id: Date.now(),
+        name: name,
+        deadline:
+            document.getElementById("goalDeadline").value,
+        progress: progress
+    });
+
+    document.getElementById("goalName").value = "";
+
+    save();
+}
+
+
+function updateGoal(id, value) {
+
+    const goal =
+        data.goals.find(g => g.id === id);
+
+    if(goal) {
+        goal.progress =
+            Math.max(0, Math.min(100, Number(value)));
+    }
+
+    save();
+}
+
+
+function deleteGoal(id) {
+
+    data.goals =
+        data.goals.filter(g => g.id !== id);
+
+    save();
+}
+
+
+function renderGoals() {
+
+    const container =
+        document.getElementById("goalList");
+
+    if(data.goals.length === 0) {
+
+        container.innerHTML =
+            `<p class="subtitle">
+                No goals yet. Add something you want to achieve.
+            </p>`;
+
+        return;
+    }
+
+    container.innerHTML =
+        data.goals.map(goal => `
+
+            <div class="goal">
+
+                <div class="goal-top">
+
+                    <div>
+                        <strong>
+                            ${escapeHTML(goal.name)}
+                        </strong>
+
+                        ${
+                            goal.deadline
+                            ?
+                            `<div class="task-meta">
+                                Deadline: ${goal.deadline}
+                            </div>`
+                            : ""
+                        }
+
+                    </div>
+
+                    <button
+                        class="delete"
+                        onclick="deleteGoal(${goal.id})">
+                        ×
+                    </button>
+
+                </div>
+
+                <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value="${goal.progress}"
+                    onchange="updateGoal(${goal.id}, this.value)"
+                >
+
+                <div style="margin-top:5px;color:var(--muted);font-size:12px;">
+                    ${goal.progress}% complete
+                </div>
+
+            </div>
+
+        `).join("");
+}
+
+
+/* =========================
+   NUTRITION
+========================= */
+
+function addMeal() {
+
+    const name =
+        document.getElementById("mealName").value.trim();
+
+    if(!name) {
+        alert("Enter a meal.");
+        return;
+    }
+
+    data.meals.push({
+        id: Date.now(),
+        name: name,
+        type: document.getElementById("mealType").value,
+        calories:
+            Number(document.getElementById("mealCalories").value) || 0,
+        protein:
+            Number(document.getElementById("mealProtein").value) || 0,
+        junk:
+            document.getElementById("mealJunk").checked
+    });
+
+    document.getElementById("mealName").value = "";
+    document.getElementById("mealCalories").value = "";
+    document.getElementById("mealProtein").value = "";
+    document.getElementById("mealJunk").checked = false;
+
+    save();
+}
+
+
+function deleteMeal(id) {
+
+    data.meals =
+        data.meals.filter(m => m.id !== id);
+
+    save();
+}
+
+
+function renderNutrition() {
+
+    const calories =
+        data.meals.reduce(
+            (sum, meal) => sum + meal.calories,
+            0
+        );
+
+    const protein =
+        data.meals.reduce(
+            (sum, meal) => sum + meal.protein,
+            0
+        );
+
+    const junk =
+        data.meals.filter(m => m.junk).length;
+
+    let score = 100 - junk * 10;
+
+    score = Math.max(0, score);
+
+    document.getElementById("nutritionCalories")
+        .textContent = calories;
+
+    document.getElementById("nutritionProtein")
+        .textContent = protein + "g";
+
+    document.getElementById("foodScore")
+        .textContent = score;
+
+
+    const container =
+        document.getElementById("mealList");
+
+    if(data.meals.length === 0) {
+
+        container.innerHTML =
+            `<p class="subtitle">No meals recorded yet.</p>`;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        data.meals.map(meal => `
+
+            <div class="task">
+
+                <div class="task-info">
+
+                    <div>
+                        <strong>
+                            ${escapeHTML(meal.name)}
+                        </strong>
+                    </div>
+
+                    <div class="task-meta">
+                        ${meal.type}
+                        • ${meal.calories} kcal
+                        • ${meal.protein}g protein
+                        ${meal.junk ? " • processed/high-sugar" : ""}
+                    </div>
+
+                </div>
+
+                <button
+                    class="delete"
+                    onclick="deleteMeal(${meal.id})">
+                    ×
+                </button>
+
+            </div>
+
+        `).join("");
+}
+
+
+/* =========================
+   WELLNESS
+========================= */
+
+function changeWater(amount) {
+
+    data.water =
+        Math.max(0, data.water + amount);
+
+    save();
+}
+
+
+function saveExercise() {
+
+    data.exercise =
+        Number(document.getElementById("exerciseInput").value) || 0;
+
+    save();
+}
+
+
+function saveSleep() {
+
+    data.sleep =
+        Number(document.getElementById("sleepInput").value) || 0;
+
+    save();
+}
+
+
+/* =========================
+   MEDICATION
+========================= */
+
+function addMedication() {
+
+    const name =
+        document.getElementById("medName").value.trim();
+
+    if(!name) {
+        alert("Enter the medicine name.");
+        return;
+    }
+
+    data.medications.push({
+        id: Date.now(),
+        name: name,
+        time:
+            document.getElementById("medTime").value,
+        dose:
+            document.getElementById("medDose").value,
+        taken: false
+    });
+
+    document.getElementById("medName").value = "";
+    document.getElementById("medTime").value = "";
+    document.getElementById("medDose").value = "";
+
+    save();
+}
+
+
+function toggleMedication(id) {
+
+    const med =
+        data.medications.find(m => m.id === id);
+
+    if(med) {
+        med.taken = !med.taken;
+    }
+
+    save();
+}
+
+
+function deleteMedication(id) {
+
+    data.medications =
+        data.medications.filter(m => m.id !== id);
+
+    save();
+}
+
+
+function renderMedications() {
+
+    const container =
+        document.getElementById("medList");
+
+    if(data.medications.length === 0) {
+
+        container.innerHTML =
+            `<p class="subtitle">
+                No medications added.
+            </p>`;
+
+        return;
+    }
+
+    container.innerHTML =
+        data.medications.map(med => `
+
+            <div class="task">
+
+                <input
+                    type="checkbox"
+                    ${med.taken ? "checked" : ""}
+                    onchange="toggleMedication(${med.id})"
+                >
+
+                <div class="task-info">
+
+                    <div>
+                        <strong>
+                            ${escapeHTML(med.name)}
+                        </strong>
+                    </div>
+
+                    <div class="task-meta">
+                        ${med.time || "No time set"}
+                        ${med.dose ? " • " + escapeHTML(med.dose) : ""}
+                    </div>
+
+                </div>
+
+                <button
+                    class="delete"
+                    onclick="deleteMedication(${med.id})">
+                    ×
+                </button>
+
+            </div>
+
+        `).join("");
+}
+
+
+/* =========================
+   DASHBOARD
+========================= */
+
+function renderDashboard() {
+
+    const total =
+        data.tasks.length;
+
+    const completed =
+        data.tasks.filter(t => t.completed).length;
+
+    const percentage =
+        total ? Math.round(completed / total * 100) : 0;
+
+    const calories =
+        data.meals.reduce(
+            (sum, meal) => sum + meal.calories,
+            0
+        );
+
+
+    document.getElementById("dashTasks")
+        .textContent =
+        `${completed}/${total}`;
+
+    document.getElementById("taskProgress")
+        .style.width =
+        percentage + "%";
+
+    document.getElementById("dashGoals")
+        .textContent =
+        data.goals.length;
+
+    document.getElementById("dashCalories")
+        .textContent =
+        calories;
+
+    document.getElementById("dashWater")
+        .textContent =
+        data.water;
+
+    document.getElementById("dashExercise")
+        .textContent =
+        data.exercise;
+
+    document.getElementById("dashSleep")
+        .textContent =
+        data.sleep;
+
+
+    const taskContainer =
+        document.getElementById("dashboardTasks");
+
+
+    if(total === 0) {
+
+        taskContainer.innerHTML =
+            `<p class="subtitle">
+                No tasks for today.
+            </p>`;
+
+    } else {
+
+        taskContainer.innerHTML =
+            data.tasks.slice(0, 5).map(task => `
+
+                <div class="task ${task.completed ? "completed" : ""}">
+
+                    <input
+                        type="checkbox"
+                        ${task.completed ? "checked" : ""}
+                        onchange="toggleTask(${task.id})"
+                    >
+
+                    <div class="task-info">
+
+                        <div class="task-name">
+                            ${escapeHTML(task.name)}
+                        </div>
+
+                        <div class="task-meta">
+                            ${task.priority}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            `).join("");
+    }
+}
+
+
+/* =========================
+   PROGRESS
+========================= */
+
+function renderProgress() {
+
+    const total =
+        data.tasks.length;
+
+    const completed =
+        data.tasks.filter(t => t.completed).length;
+
+    const rate =
+        total
+        ? Math.round(completed / total * 100)
+        : 0;
+
+    document.getElementById("progressTasks")
+        .textContent = total;
+
+    document.getElementById("progressCompleted")
+        .textContent = completed;
+
+    document.getElementById("progressRate")
+        .textContent = rate + "%";
+}
+
+
+/* =========================
+   RENDER EVERYTHING
+========================= */
+
+function renderAll() {
+
+    document.getElementById("dailyQuote")
+        .textContent = dailyQuote();
+
+    document.getElementById("waterCount")
+        .textContent = data.water;
+
+    document.getElementById("exerciseInput")
+        .value = data.exercise;
+
+    document.getElementById("sleepInput")
+        .value = data.sleep;
+
+    renderTasks();
+    renderGoals();
+    renderNutrition();
+    renderMedications();
+    renderDashboard();
+    renderProgress();
+}
+
+
+/* =========================
+   SECURITY
+========================= */
+
+function escapeHTML(text) {
+
+    return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+/* =========================
+   START APP
+========================= */
+
+updateDate();
+renderAll();
+
+</script>
+
+</body>
+</html>
